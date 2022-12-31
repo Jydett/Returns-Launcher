@@ -1,7 +1,10 @@
+:root {
+  --menuBarWidth: 2em;
+}
 .TitleBar {
   display: flex;
   background-color: rgb(0, 0, 0, .4);
-  height: 2em;
+  height: var(--menuBarWidth);
   -webkit-app-region: drag;
   position: relative;
   z-index: 99;
@@ -13,8 +16,10 @@
     column-gap: 0.25em;
 
     .hamMenuOpenerButton {
+      cursor: pointer;
       background-image: url("../../../assets/img/icon_settings.png");
-      background-size: contain;
+      background-size: calc(2em - 4px) calc(2em - 4px);
+      background-position: 2px 2px;
       background-repeat: no-repeat;
       width: 2em;
       height: 2em;
@@ -31,28 +36,36 @@
     }
 
     .hamMenu {
-      width: 40vw;
+      width: calc(30vw + 30px);
       height: 100%;
       position: fixed;
-      top: 0;
-      left: 0;
+      top: var(--menuBarWidth);
+      left: -30px;
+      padding-left: 30px;
+
       visibility: hidden;
       transform: translate(-110%);
       background-color: rgba(0, 0, 0, .8);
-      transition: 0.75s;
-      display: flex;
+      transition: 0.4s;
+      transition-timing-function: cubic-bezier(.33,1.23,.84,1.01);
       justify-content: center;
       align-items: center;
       font: normal normal normal 1em/1.2em Arial, sans-serif;
 
       li {
         color: whitesmoke;
-        width: 100%;
-        padding: 5px 5px 5px 2em;
-        text-indent:0.4em;
+        padding: 5px 5px 7px 31px;
+        text-indent: 0.4em;
         border-radius: 2px;
         font-weight:bold;
         background-repeat:no-repeat;
+        background-position-x: 5px;
+        transition: background-color ease 0.1s;
+        margin-right: 5px;
+      }
+
+      li:active {
+        transform: scale(0.98);
       }
 
       li:hover {
@@ -62,6 +75,7 @@
 
       ul {
         list-style: none;
+        padding-inline-start: 20px;
       }
     }
 
