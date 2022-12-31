@@ -2,6 +2,7 @@ import { Constants } from "./constants";
 import path from "path";
 import fs from "fs";
 import { IPC } from "./ipc";
+import { EOL } from "os";
 
 export namespace Utils {
   export const buildJavaArgs = (platform: NodeJS.Platform) => {
@@ -67,5 +68,34 @@ export namespace Utils {
     javaArgs.push("com.arenareturns.client.ArenaReturnsWrapper");
 
     return javaArgs.join(" ");
+  };
+
+  /**
+   * Return a property file buffer as a String optained from merging localProperties with newProperties.
+   * The merging process keeps all line in the new properties and if a line is a property definition (*=*),
+   *  the value from the localProperties is kept if it exists otherwise the new value is used.
+   *
+   * @param localProperties
+   * @param newProperties
+   */
+  export const mergeProperties = (localProperties: String, newProperties: String) => {
+    const localPropertiesMap: { [_: string]: string } = localProperties.split(EOL)
+      .filter(line => line.trim() || !line.startsWith("#") || line.indexOf("=") != -1)
+      .reduce(function (a, line) {
+        const equalIndex = line.indexOf("=");
+        return {...a, [line.substring(0, equalIndex)]: line.substring(equalIndex + 1)};
+      }, {});
+    return newProperties.split(EOL)
+      .map(line => {
+        const equalIndex = line.indexOf("=");
+        if (line.trim() || !line.startsWith("#") || equalIndex != -1) {
+          const key = line.substring(0, equalIndex);
+          const localValue = localPropertiesMap[key];
+          if (localValue) {
+            return key + "=" + localValue;
+          }
+        }
+        return line;
+      }).join(EOL);
   };
 }

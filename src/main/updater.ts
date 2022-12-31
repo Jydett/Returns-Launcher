@@ -7,6 +7,7 @@ import path from "path";
 import { mainWindow } from "..";
 import crypto from "crypto";
 import PQueue from "p-queue";
+import { Utils } from "./utils";
 
 type FileManifest = {
   path: string;
@@ -118,6 +119,19 @@ export namespace Updater {
       const fileBuf = await got.get(fileUrl).buffer();
       if (!fs.existsSync(path.dirname(filePath))) {
         fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      }
+      if (filePath.endsWith("userPreferences.properties")) {
+        //We try to update the properties without erasing the file
+        if (fs.existsSync(filePath)) {
+          try {
+            const localProperties = fs.readFileSync(filePath, {encoding: 'utf8', flag: 'r'});
+            const mergedFileBuf = Buffer.from(Utils.mergeProperties(localProperties, fileBuf.toString()));
+            fs.writeFileSync(filePath, mergedFileBuf);
+            return
+          } catch (err) {
+            //Well at least we tried, now we override the properties files like any other file
+          }
+        }
       }
       fs.writeFileSync(filePath, fileBuf);
     } catch (err) {
