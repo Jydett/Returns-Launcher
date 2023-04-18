@@ -41,12 +41,17 @@
             >
               Effacer les logs
             </li>
-            <li
-              @click="nextDebugMode"
-            >
+            <li @click.stop="nextLogLevel">
+              Log level: {{ logLevel }}
+            </li>
+            <li @click.stop="nextDebugMode">
               Debug mode: {{ debugMode }}
             </li>
-            <li v-for="(value, key) in devOptions" :key="key" @click.stop="devOptions[key] = !value">
+            <li
+              v-for="(value, key) in devOptions"
+              :key="key"
+              @click.stop="devOptions[key] = !value"
+            >
               {{ value ? '✔' : '✘' }} {{ devOptionsLabel[key] }}
             </li>
           </template>
@@ -67,57 +72,47 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref, watch, reactive} from 'vue';
-
+import {onMounted, ref, watch, reactive, toRaw} from 'vue';
 import {ipc, on} from '#preload';
-
-enum DebugMode {
-  NO_DEBUG = 0,
-  INFO = 1,
-  DEBUG = 2,
-  VERBOSE = 3,
-}
-
-const DebugModeValues = [DebugMode.NO_DEBUG, DebugMode.INFO, DebugMode.DEBUG, DebugMode.VERBOSE];
+import {DebugMode, DebugModeValues, LogLevel, LogLevelValues} from '../../../../types/appTypes';
 
 const repairVisible = ref(false);
 const devMode = ref(false);
 const menuVisible = ref(false);
-const debugMode = ref(DebugMode.NO_DEBUG);
+const logLevel = ref<LogLevel>(LogLevel.INFO);
+const debugMode = ref<DebugMode>(DebugMode.NO_DEBUG);
 
 const devOptionsLabel = ref({
-    "dumpMixinified": "Dump mixinified",
-    "printMixinsLoadOrder": "Print mixins order",
-    "launchGame": "Do not start game",
-    "applyMixins": "Apply mixins",
-    "discordIntegration": "Discord Integration",
-    "redirectLogs": "Redirect logs"
+    'dumpMixinified': 'Dump mixinified',
+    'printMixinsLoadOrder': 'Print mixins order',
+    'launchGame': 'Do not start game',
+    'applyMixins': 'Apply mixins',
+    'discordIntegration': 'Discord Integration',
+    'redirectLogs': 'Redirect logs',
 });
 
 const devOptions = reactive({
-    "dumpMixinified": true,
-    "printMixinsLoadOrder": true,
-    "launchGame": true,
-    "applyMixins": true,
-    "discordIntegration": true,
-    "redirectLogs": true
+    'dumpMixinified': true,
+    'printMixinsLoadOrder': true,
+    'launchGame': true,
+    'applyMixins': true,
+    'discordIntegration': true,
+    'redirectLogs': true,
 });
 
-watch(devOptions, (newValue, oldValue) => {
-debugger
-  console.log("new devs front", newValue.value, newValue)
-  ipc.send("toogleDevOption", newValue.value);
+watch(devOptions, (newValue) => {
+  ipc.send('toogleDevOption', toRaw(newValue));
 });
 
 const handleChange = () => {
   menuVisible.value = !menuVisible.value;
 };
 
-const openGameDir = (e: MouseEvent) => {
+const openGameDir = () => {
   ipc.send('openGameDir');
 };
 
-const openStatus = (e: MouseEvent) => {
+const openStatus = () => {
   ipc.send('openUrl', 'https://status.arena-returns.com/');
 };
 
@@ -129,11 +124,16 @@ const minimizeApp = () => {
   ipc.send('minimize');
 };
 
-const nextDebugMode = (e: MouseEvent) => {
-  let next: DebugMode = DebugModeValues[(debugMode.value + 1) % DebugModeValues.length];
-  debugMode.value = next;
-  ipc.send('changeDebugMode', next);
+const nextLogLevel = () => {
+  logLevel.value = LogLevelValues[(LogLevelValues.indexOf(logLevel.value) + 1) % LogLevelValues.length];
+  ipc.send('changeLogLevel', logLevel.value);
 };
+
+const nextDebugMode = () => {
+  debugMode.value = DebugModeValues[(DebugModeValues.indexOf(debugMode.value) + 1) % DebugModeValues.length];
+  ipc.send('changeDebugMode', debugMode.value);
+};
+
 
 const clearLogs = () => {
   ipc.send('clearLogs');

@@ -132,7 +132,9 @@ async function downloadAndSave(fileUrl: string, filePath: string) {
 async function downloadFiles(files: Array<FileManifest>, mainWindow: BrowserWindow) {
   mainWindow.webContents.send('downloadStarted', files.length);
 
-  const queue = new PQueue.default({concurrency: 2})
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const queue = new PQueue.default({concurrency: 2});
 
   for (const file of files) {
     const filePath = path.join(Constants.GAME_PATH, file.path);

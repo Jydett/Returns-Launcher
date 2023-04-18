@@ -7,16 +7,12 @@ import {exec} from 'child_process';
 import {startUpdate} from '/@/updater';
 import {buildJavaArgs} from '/@/utils';
 import * as CdnService from '/@/cdnService';
+import {DebugMode, LogLevel} from '../../../types/appTypes';
 
-export enum DebugMode {
-  NO_DEBUG,
-  JMX,
-  AGENT,
-  AGENT_SUSPENDED
-}
 
 let devMode = false;
 let debugMode: DebugMode = DebugMode.NO_DEBUG;
+let logLevel: LogLevel = LogLevel.INFO;
 let devOptions = {};
 
 export function registerEvents(mainWindow: BrowserWindow) {
@@ -28,8 +24,12 @@ export function registerEvents(mainWindow: BrowserWindow) {
     debugMode = mode;
   });
 
-  ipcMain.on("toogleDevOption", (_event, newDevOptions) => {
-  console.log("NEW OPTIOSN", newDevOptions)
+  ipcMain.on('changeLogLevel', (_event, level: LogLevel) => {
+    logLevel = level;
+  });
+
+  ipcMain.on('toogleDevOption', (_event, newDevOptions) => {
+  console.log('NEW OPTIOSN', newDevOptions);
     devOptions = newDevOptions;
   });
 
@@ -84,11 +84,11 @@ export function registerEvents(mainWindow: BrowserWindow) {
 
       return;
     } else {
+
       if (mainWindow.webContents.isDevToolsOpened()) {
-          mainWindow.webContents.closeDevTools();
-        } else {
-          mainWindow.webContents.openDevTools({mode: 'detach'});
-        }
+        mainWindow.webContents.closeDevTools();
+      } else {
+        mainWindow.webContents.openDevTools({mode: 'detach'});
       }
     }
 
@@ -164,6 +164,9 @@ export function isDevMode() {
 
 export function getDebugMode() {
   return debugMode;
+}
+export function getLogLevel() {
+  return logLevel;
 }
 
 export function getDevOptions() {

@@ -2,7 +2,7 @@ import {Constants} from './constants';
 import * as IPC from './ipc';
 import * as path from 'path';
 import * as fs from 'fs';
-import {DebugMode} from './ipc';
+import {DebugMode} from '../../../types/appTypes';
 
 export const buildJavaArgs = (platform: NodeJS.Platform) => {
   const javaArgs: Array<string> = [];
@@ -30,6 +30,8 @@ export const buildJavaArgs = (platform: NodeJS.Platform) => {
   javaArgs.push('-XX:MinHeapFreeRatio=10');
   javaArgs.push('-XX:MaxHeapFreeRatio=20');
   javaArgs.push('-Xss256k');
+
+  javaArgs.push('--logLevel=' + IPC.getLogLevel());
 
   switch (IPC.getDebugMode()) {
     case DebugMode.JMX: {
@@ -76,12 +78,11 @@ export const buildJavaArgs = (platform: NodeJS.Platform) => {
   // Wrapper entrypoint
   javaArgs.push('com.arenareturns.client.ArenaReturnsWrapper');
 
-    //add additionnal options
-    let devOptions = IPC.getDevOptions();
-    for (let devOptionsKey in devOptions) {
-      // @ts-ignore
-      javaArgs.push("-" + devOptionsKey + " " + devOptions[devOptionsKey]);
-    }
+  //add additionnal options
+  const devOptions = IPC.getDevOptions();
+  for (const devOptionsKey in devOptions) {
+    javaArgs.push('-' + devOptionsKey + ' ' + devOptions[devOptionsKey as keyof typeof devOptions] as string);
+  }
 
   return javaArgs.join(' ');
 };
