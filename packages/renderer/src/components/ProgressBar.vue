@@ -1,0 +1,55 @@
+<template>
+  <div class="ProgressBar">
+    <div
+      class="current"
+      :style="{ width: `${progress}%` }"
+    />
+    <div
+      v-if="!hideProgress"
+      class="label"
+    >
+      {{ progress }}%
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+interface ProgressBarProps {
+  progress: number;
+  hideProgress?: boolean;
+}
+
+defineProps<ProgressBarProps>();
+</script>
+
+<style scoped lang="scss">
+.ProgressBar {
+  background-color: #e0e0de;
+  background-image: url('../../assets/img/loading_bg.png');
+  background-size: auto 100%;
+  width: 100%;
+  height: 1.75em;
+  overflow: hidden;
+  border-radius: 100vh;
+  position: relative;
+  .current {
+    transition: width 0.2s;
+    background-color: #f1b063;
+    background-image: url('../../assets/img/loading_bg.png'), linear-gradient(to right, #f8cc65, #f8b565);
+    background-blend-mode: multiply, normal;
+    background-size: auto 100%;
+    height: 100%;
+    border-radius: 100vh;
+  }
+  .label {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding-bottom: 0.07em;
+    font-size: 1em;
+    opacity: 0.7;
+    color: black;
+  }
+}
+</style>
