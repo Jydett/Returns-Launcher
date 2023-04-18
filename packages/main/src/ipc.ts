@@ -17,6 +17,7 @@ export enum DebugMode {
 
 let devMode = false;
 let debugMode: DebugMode = DebugMode.NO_DEBUG;
+let devOptions = {};
 
 export function registerEvents(mainWindow: BrowserWindow) {
   ipcMain.on('close', () => {
@@ -25,6 +26,11 @@ export function registerEvents(mainWindow: BrowserWindow) {
 
   ipcMain.on('changeDebugMode', (_event, mode: DebugMode) => {
     debugMode = mode;
+  });
+
+  ipcMain.on("toogleDevOption", (_event, newDevOptions) => {
+  console.log("NEW OPTIOSN", newDevOptions)
+    devOptions = newDevOptions;
   });
 
   ipcMain.on('clearLogs', () => {
@@ -69,13 +75,21 @@ export function registerEvents(mainWindow: BrowserWindow) {
 
   ipcMain.on('enableDevMode', (_event) => {
     mainWindow.webContents.send('devModeEnabled');
-    if (!devMode) {
+    if (! devMode) {
       devMode = true;
       dialog.showMessageBox(mainWindow, {
         type: 'info',
         message: 'Mode développeur activé',
       });
+
       return;
+    } else {
+      if (mainWindow.webContents.isDevToolsOpened()) {
+          mainWindow.webContents.closeDevTools();
+        } else {
+          mainWindow.webContents.openDevTools({mode: 'detach'});
+        }
+      }
     }
 
     dialog.showMessageBox(mainWindow, {
@@ -150,4 +164,8 @@ export function isDevMode() {
 
 export function getDebugMode() {
   return debugMode;
+}
+
+export function getDevOptions() {
+  return devOptions;
 }

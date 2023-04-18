@@ -75,5 +75,13 @@ export const buildJavaArgs = (platform: NodeJS.Platform) => {
 
   // Wrapper entrypoint
   javaArgs.push('com.arenareturns.client.ArenaReturnsWrapper');
+
+    //add additionnal options
+    let devOptions = IPC.getDevOptions();
+    for (let devOptionsKey in devOptions) {
+      // @ts-ignore
+      javaArgs.push("-" + devOptionsKey + " " + devOptions[devOptionsKey]);
+    }
+
   return javaArgs.join(' ');
 };

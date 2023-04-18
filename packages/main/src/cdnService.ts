@@ -8,7 +8,6 @@ export let manifest: Manifest;
 export async function loadManifest() {
   try {
     manifest = await got.get(`${Constants.CDN_URL}/manifest.json`).json();
-
     // Automatic updates are only available on Windows
     if (process.platform !== 'win32' && manifest.launcherVersion !== Constants.CURRENT_LAUNCHER_VERSION) {
       const response = await dialog.showMessageBox( {

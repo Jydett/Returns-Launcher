@@ -13,39 +13,43 @@
         <ul>
           <li
             class="iconStatus"
-            @click="openStatus"
+            @click.stop="openStatus"
           >
             Voir le status des services
           </li>
           <li
             v-if="repairVisible"
             class="iconOpen"
-            @click="openGameDir"
+            @click.stop="openGameDir"
           >
             Ouvrir le dossier du jeu
           </li>
           <li
             v-if="repairVisible"
             class="iconRepair"
-            @click="repairApp"
+            @click.stop="repairApp"
           >
             Réparer
           </li>
 
           <!-- Dev mode options-->
-          <li
-            v-if="devMode && repairVisible"
-            class="clearLogs"
-            @click="clearLogs"
-          >
-            Effacer les logs
-          </li>
-          <li
-            v-if="devMode"
-            @click="nextDebugMode"
-          >
-            Debug mode: {{ debugMode }}
-          </li>
+          <template v-if="devMode">
+            <li
+              v-if="repairVisible"
+              class="clearLogs"
+              @click.stop="clearLogs"
+            >
+              Effacer les logs
+            </li>
+            <li
+              @click="nextDebugMode"
+            >
+              Debug mode: {{ debugMode }}
+            </li>
+            <li v-for="(value, key) in devOptions" :key="key" @click.stop="devOptions[key] = !value">
+              {{ value ? '✔' : '✘' }} {{ devOptionsLabel[key] }}
+            </li>
+          </template>
         </ul>
       </div>
     </div>
@@ -63,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {onMounted, ref, watch, reactive} from 'vue';
 
 import {ipc, on} from '#preload';
 
@@ -81,19 +85,40 @@ const devMode = ref(false);
 const menuVisible = ref(false);
 const debugMode = ref(DebugMode.NO_DEBUG);
 
+const devOptionsLabel = ref({
+    "dumpMixinified": "Dump mixinified",
+    "printMixinsLoadOrder": "Print mixins order",
+    "launchGame": "Do not start game",
+    "applyMixins": "Apply mixins",
+    "discordIntegration": "Discord Integration",
+    "redirectLogs": "Redirect logs"
+});
+
+const devOptions = reactive({
+    "dumpMixinified": true,
+    "printMixinsLoadOrder": true,
+    "launchGame": true,
+    "applyMixins": true,
+    "discordIntegration": true,
+    "redirectLogs": true
+});
+
+watch(devOptions, (newValue, oldValue) => {
+debugger
+  console.log("new devs front", newValue.value, newValue)
+  ipc.send("toogleDevOption", newValue.value);
+});
+
 const handleChange = () => {
-  console.log('sus');
   menuVisible.value = !menuVisible.value;
 };
 
 const openGameDir = (e: MouseEvent) => {
   ipc.send('openGameDir');
-  e.stopPropagation(); //we prevent the event from closing the whole menu
 };
 
 const openStatus = (e: MouseEvent) => {
   ipc.send('openUrl', 'https://status.arena-returns.com/');
-  e.stopPropagation(); //we prevent the event from closing the whole menu
 };
 
 const closeApp = () => {
@@ -108,7 +133,6 @@ const nextDebugMode = (e: MouseEvent) => {
   let next: DebugMode = DebugModeValues[(debugMode.value + 1) % DebugModeValues.length];
   debugMode.value = next;
   ipc.send('changeDebugMode', next);
-  e.stopPropagation(); //we prevent the event from closing the whole menu
 };
 
 const clearLogs = () => {
