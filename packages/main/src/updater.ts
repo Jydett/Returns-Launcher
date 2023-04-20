@@ -50,6 +50,7 @@ function isPlatformSupported() {
 
 export async function startUpdate(mainWindow: BrowserWindow) {
   mainWindow.webContents.send('setRepairVisible', false);
+  console.log(`${Constants.CDN_URL}/versions/${CdnService.manifest.gameVersion}.json`);
   versionManifest = await got.get(`${Constants.CDN_URL}/versions/${CdnService.manifest.gameVersion}.json`).json();
 
   if (!isPlatformSupported()) {

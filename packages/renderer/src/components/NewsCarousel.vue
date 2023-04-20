@@ -4,7 +4,7 @@
       v-if="imgs.length > 0"
       class="carousel"
       :options="{circular: true}"
-      :plugins="[new Arrow()]"
+      :plugins="plugins"
     >
       <div
         v-for="(img, index) in imgs"
@@ -34,6 +34,7 @@ import { Arrow } from '@egjs/flicking-plugins';
 import '@egjs/flicking-plugins/dist/arrow.css';
 
 const imgs = ref<CarouselItem[]>([]);
+const plugins = ref([new Arrow()]);
 
 onMounted(() => {
   ipc.invoke('getCarouselData').then((carouselData: Array<CarouselItem>) => {

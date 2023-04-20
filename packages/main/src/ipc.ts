@@ -13,7 +13,14 @@ import {DebugMode, LogLevel} from '../../../types/appTypes';
 let devMode = false;
 let debugMode: DebugMode = DebugMode.NO_DEBUG;
 let logLevel: LogLevel = LogLevel.INFO;
-let devOptions = {};
+let devOptions = {
+  'dumpMixinified': true,
+  'printMixinsLoadOrder': true,
+  'launchGame': true,
+  'applyMixins': true,
+  'discordIntegration': true,
+  'redirectLogs': true,
+ };
 
 export function registerEvents(mainWindow: BrowserWindow) {
   ipcMain.on('close', () => {
@@ -29,7 +36,7 @@ export function registerEvents(mainWindow: BrowserWindow) {
   });
 
   ipcMain.on('toogleDevOption', (_event, newDevOptions) => {
-  console.log('NEW OPTIOSN', newDevOptions);
+    console.log('NEW OPTIOSN', newDevOptions);
     devOptions = newDevOptions;
   });
 

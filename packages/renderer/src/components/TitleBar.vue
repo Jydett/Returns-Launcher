@@ -102,7 +102,7 @@ const devOptions = reactive({
 
 watch(devOptions, (newValue) => {
   ipc.send('toogleDevOption', toRaw(newValue));
-});
+}, { immediate: true });
 
 const handleChange = () => {
   menuVisible.value = !menuVisible.value;

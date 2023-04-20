@@ -62,6 +62,7 @@
     "@egjs/flicking-plugins": "^4.7.0",
     "@egjs/vue3-flicking": "^4.10.7",
     "electron-updater": "5.3.0",
+    "got": "11.8.6",
     "normalize.css": "^8.0.1",
     "p-queue": "^6.6.2"
   }

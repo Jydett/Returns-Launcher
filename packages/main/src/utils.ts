@@ -31,8 +31,6 @@ export const buildJavaArgs = (platform: NodeJS.Platform) => {
   javaArgs.push('-XX:MaxHeapFreeRatio=20');
   javaArgs.push('-Xss256k');
 
-  javaArgs.push('--logLevel=' + IPC.getLogLevel());
-
   switch (IPC.getDebugMode()) {
     case DebugMode.JMX: {
       javaArgs.push('-Dcom.sun.management.jmxremote');
@@ -83,6 +81,8 @@ export const buildJavaArgs = (platform: NodeJS.Platform) => {
   for (const devOptionsKey in devOptions) {
     javaArgs.push('-' + devOptionsKey + ' ' + devOptions[devOptionsKey as keyof typeof devOptions] as string);
   }
+
+  javaArgs.push('-logLevel=' + IPC.getLogLevel());
 
   return javaArgs.join(' ');
 };
